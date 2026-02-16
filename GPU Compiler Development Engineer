@@ -1,0 +1,21 @@
+GPU Compiler Development Engineer
+***********************************
+What you will be doing:
+Lead design and development of NVIDIA s Assembler and Disassembler for GPU compute.
+Work on binary analysis & instrumentation features like call graphs generation, program register usage and patching of GPU binaries
+Work with GPU architecture and debugger/profiler development teams to understand their requirements and deliver new features & product improvements.
+Collaborate closely with teams  developing other related components to ensure compatibility, reliability, and high-quality code generation
+Working with customers/partners to collect feedback and drive innovative ideas and features to incorporate into the product
+
+What we need to see:
+BS or MS degree in Computer Science, Computer Engineering, or related fields with 5+ years of experience in low-level system SW development and a minimum of 3 years related to assemblers, binary analysis tools, debuggers
+Good analytical and C/C++ programming skills
+Experience in any one area of compiler development including feature support, code generation and compiler infrastructure
+Understanding of Assembly Language / Processor ISA (GPU ISA not required but a plus)
+Knowledge of object file formats such as ELF and debugging formats (DWARF).
+
+Ways to stand out from the crowd:
+Understanding of debugger / profiler tools / bintools / Linker internals, experience in binary analysis / instrumentation tools like BOLT etc.
+Usage of AI tools in everyday work like Cursor, Windsurf etc.
+Knowledge of GPU development and compute APIs such as CUDA and OpenCL
+
