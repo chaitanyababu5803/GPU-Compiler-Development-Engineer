@@ -1,5 +1,7 @@
 **********************
 ********************************
+https://vulkan-tutorial.com/Drawing_a_triangle/Graphics_pipeline_basics/Shader_modules
+***************************************
 Vulkan shader programming involves creating shader code in a high-level language, compiling it to the intermediate SPIR-V binary format, and integrating these compiled shaders into the Vulkan graphics or compute pipeline. Unlike older APIs like OpenGL, Vulkan requires pre-compiled shaders, giving developers more control and allowing for performance optimizations. 
 
 Key Concepts
