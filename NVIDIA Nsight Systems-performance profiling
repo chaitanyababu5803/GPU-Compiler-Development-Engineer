@@ -1,0 +1,117 @@
+NVIDIA Nsight Systems: For system-wide performance profiling to identify bottlenecks across CPUs and GPUs.
+***********************************
+NVIDIA Nsight Systems: For system-wide performance profiling to identify bottlenecks across CPUs and GPUs
+NVIDIA Nsight Systems is a low-overhead, system-wide performance profiling tool designed to visualize an application's algorithms across both CPUs and GPUs. It serves as the primary tool for identifying high-level bottlenecks, such as GPU starvation, unnecessary synchronization, and insufficient parallelization. 
+
+Key Capabilities
+Unified Timeline: Visualizes CPU and GPU activity, API traces (CUDA, Vulkan, DX12), and OS events on a single, synchronized timeline to reveal correlations and dependencies.
+Bottleneck Detection: Automatically identifies common performance limiters, including "GPU starvation" (where the GPU lacks work from the CPU) and inefficient memory transfers.
+Scalability: Profiles applications ranging from single workstations to large-scale data centers and multi-node clusters.
+Low Overhead: Employs efficient tracing and sampling techniques to minimize the performance impact on the application being profiled. 
+
+ 
+Common Use Cases
+AI & Deep Learning: Optimizing data pipelines to ensure maximum GPU utilization during training or inference.
+Gaming & Graphics: Detecting frame stutter and analyzing API call sequences in Vulkan, OpenGL, and DirectX.
+HPC (High Performance Computing): Tuning complex simulations (e.g., GROMACS) to improve multi-GPU and inter-node communication. 
+
+Integration with Nsight Suite
+Nsight Systems is typically the first step in the optimization workflow. Once a specific problematic GPU kernel is identified, developers can "drill down" into its instruction-level performance using NVIDIA Nsight Compute. 
+To get started, you can download the latest version from the NVIDIA Developer Portal or use the nsys command-line interface included in the NVIDIA CUDA Toolkit. 
+
+Would you like to know more about the specific CLI commands for capturing a profile or how to use NVTX markers to label sections of your code?
+
+**************************************
+https://developer.nvidia.com/blog/profiling-llm-training-workflows-on-nvidia-grace-hopper/
+https://docs.nvidia.com/nsight-systems/UserGuide/index.html
+https://learn.nvidia.com/courses/course-detail?course_id=course-v1:DLI+S-AC-03+V2
+*****************
+NVIDIA Nsight Systems tutorials
+NVIDIA offers several official and community-led tutorials to help you master Nsight Systems for profiling across CPUs and GPUs. 
+1. Official Getting Started & Documentation
+Nsight Systems User Guide: The primary source for understanding the CLI options, GUI navigation, and system-wide profiling setup.
+Nsight Tools Tutorial Center: A centralized hub containing a catalog of video series, self-paced training, and links to the latest tool documentation. 
+
+2. Hands-on Training & Courses 
+Find the Bottleneck: Optimize AI Pipelines: A self-paced NVIDIA Deep Learning Institute (DLI) workshop that uses Nsight Systems to profile and optimize real-world AI applications, focusing on memory transfers and NVTX annotations.
+Optimizing CUDA with Nsight Profiling Tools: An intermediate course teaching how to identify bottlenecks with Nsight Systems and then drill down into kernel-level performance using Nsight Compute. 
+
+3. Video Tutorials
+Intro to NVIDIA Nsight Systems (YouTube): A high-level overview of tracing GPU-accelerated applications and identifying CPU bottlenecks or inefficient PCIe transfers.
+CUDA Developer Tools Series: A collection of videos demonstrating profiling, debugging, and optimization techniques within the Nsight ecosystem. 
+
+4. Specialized Use-Case Tutorials
+Profiling LLM Training: A technical blog/tutorial on analyzing Large Language Model (LLM) training performance on the Grace Hopper superchip.
+JupyterLab Extension: Learn how to profile notebook cells directly and view detailed analysis within the Nsight Systems GUI. 
+
+These tutorials offer an introduction to using NVIDIA Nsight Systems for tracing GPU-accelerated applications and identifying performance bottlenecks.
+
+************************************
+*********************
+BASIC EXAMPLE WITH CODE PROJECT-2026
+**************************
+***********************************
+To profile an application with NVIDIA Nsight Systems, you typically use the NVIDIA Tools Extension (NVTX) to label specific code regions. These labels appear as a separate "NVTX" row in the Nsight Systems timeline, allowing you to correlate high-level CPU logic with low-level GPU activity. 
+
+ 
+1. C++ Example (main.cu)
+This example uses a simple CUDA kernel and wraps host operations with NVTX ranges for visibility in the profiler. 
+
+cpp
+#include <cuda_runtime.h>
+#include <nvtx3/nvToolsExt.h> // Include NVTX for manual markers
+
+__global__ void simpleKernel(float* data) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    data[idx] *= 2.0f;
+}
+
+int main() {
+    const int N = 1 << 20;
+    float *h_data, *d_data;
+    
+    // NVTX: Start a named range on the CPU timeline
+    nvtxRangePushA("Memory Allocation");
+    h_data = new float[N];
+    cudaMalloc(&d_data, N * sizeof(float));
+    nvtxRangePop(); // End "Memory Allocation"
+
+    nvtxRangePushA("Data Copy H2D");
+    cudaMemcpy(d_data, h_data, N * sizeof(float), cudaMemcpyHostToDevice);
+    nvtxRangePop();
+
+    // NVTX: Wrap the kernel launch
+    nvtxRangePushA("Kernel Execution");
+    simpleKernel<<<N/256, 256>>>(d_data);
+    cudaDeviceSynchronize(); // Sync to ensure kernel completes in this range
+    nvtxRangePop();
+
+    cudaFree(d_data);
+    delete[] h_data;
+    return 0;
+}
+Use code with caution.
+
+2. Compiling and Running
+To compile, ensure the NVTX headers are in your include path (usually part of the CUDA Toolkit). 
+
+bash
+# Compile with the NVTX library
+nvcc main.cu -o profile_example -lnvToolsExt
+Use code with caution.
+
+3. Capturing the Profile
+Use the nsys profile command to generate a report file (.nsys-rep). The --trace flag is essential to capture the CUDA and NVTX events. 
+
+bash
+nsys profile --trace=cuda,nvtx --output=my_profile ./profile_example
+Use code with caution.
+
+4. Viewing the Results
+Open the resulting my_profile.nsys-rep file in the Nsight Systems GUI. You will see:
+CUDA Row: Shows the exact duration of simpleKernel and memory transfers.
+NVTX Row: Shows your custom labels like "Kernel Execution" and "Memory Allocation" stacked above the GPU activity, helping you spot if the CPU is stalling the GPU. 
+
+Would you like to see a Python/PyTorch example using the torch.cuda.nvtx module instead?
+
+***********************************
