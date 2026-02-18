@@ -1,0 +1,77 @@
+MLIR & LLVM  basic project 
+*************************************
+MLIR & LLVM  basic project with code
+A basic compiler project typically involves generating LLVM IR (Intermediate Representation) using the C++ API or creating a high-level MLIR module that can be lowered to LLVM. 
+1. Simple LLVM Project (C++)
+This code uses the LLVM C++ API to create a function that returns the integer 42.
+main.cpp
+cpp
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/Support/raw_ostream.h"
+
+int main() {
+    llvm::LLVMContext Context;
+    llvm::Module *Module = new llvm::Module("MyModule", Context);
+    llvm::IRBuilder<> Builder(Context);
+
+    // Create 'int main()'
+    llvm::FunctionType *FuncType = llvm::FunctionType::get(Builder.getInt32Ty(), false);
+    llvm::Function *MainFunc = llvm::Function::Create(FuncType, llvm::Function::ExternalLinkage, "main", Module);
+
+    // Create entry block and return 42
+    llvm::BasicBlock *Entry = llvm::BasicBlock::Create(Context, "entry", MainFunc);
+    Builder.SetInsertPoint(Entry);
+    Builder.CreateRet(Builder.getInt32(42));
+
+    // Print the IR
+    Module->print(llvm::outs(), nullptr);
+    return 0;
+}
+Use code with caution.
+
+To Compile: Use llvm-config to get the necessary flags: 
+GitHub
+GitHub
+ +1
+bash
+clang++ main.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o simple_compiler
+./simple_compiler
+Use code with caution.
+
+2. Basic MLIR Project (Functional)
+MLIR allows you to represent high-level operations. A standard starting point is the MLIR Toy Tutorial. Below is a conceptual example of a function in the MLIR text format that adds two integers. 
+MLIR
+MLIR
+ +2
+example.mlir
+mlir
+func.func @add_example(%arg0: i32, %arg1: i32) -> i32 {
+  %result = arith.addi %arg0, %arg1 : i32
+  return %result : i32
+}
+Use code with caution.
+
+3. Lowering MLIR to LLVM
+To run the MLIR code above on actual hardware, you must "lower" it through the MLIR pipeline: 
+Lower to LLVM Dialect:
+bash
+mlir-opt example.mlir --convert-func-to-llvm --convert-arith-to-llvm -o llvm_dialect.mlir
+Use code with caution.
+
+Translate to LLVM IR:
+bash
+mlir-translate llvm_dialect.mlir --mlir-to-llvmir -o example.ll
+Use code with caution.
+
+Execute:
+Use lli (the LLVM JIT engine) or compile with clang to an executable. 
+jameshamilton.eu
+jameshamilton.eu
+Project Structure Recommendations
+For a real "out-of-tree" project, it is best to use the MLIR Standalone Template. It provides a pre-configured CMake setup for defining custom dialects and passes without modifying the core LLVM source tree. 
+GitHub
+GitHub
+ +1
+Do you want to see the CMakeLists.txt configuration for building the C++ LLVM example, or should we dive into defining a custom MLIR operation?
