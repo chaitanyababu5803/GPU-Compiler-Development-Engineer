@@ -1,0 +1,48 @@
+GPU Architecture: 
+************************
+GPU Architecture: Understanding of memory hierarchies, Tensor Core optimization, thread synchronization, and Instruction Set Architectures (ISA) like NVIDIA's PTX.
+Modern GPU architecture is a hierarchy of specialized hardware units and memory layers designed for massive parallel throughput. 
+1. Memory Hierarchies
+GPU memory is structured to balance extreme bandwidth with low latency. Unlike the CPU "pyramid," GPU L1 cache can sometimes be smaller than the register file. 
+NASA Advanced Supercomputing Division (.gov)
+NASA Advanced Supercomputing Division (.gov)
+ +3
+Registers: Fastest, private to each thread. Excessive usage ("register pressure") reduces occupancy, potentially spilling data to slower Local Memory.
+Shared Memory (L1): Programmable, low-latency on-chip memory shared within a thread block. It is essential for inter-thread communication and reducing global memory traffic.
+L2 Cache: A larger, hardware-managed pool shared by all Streaming Multiprocessors (SMs).
+Global Memory (VRAM): The largest, slowest pool (GDDR/HBM) accessible by all threads. Efficiency depends on coalesced access patterns, where threads in a warp access adjacent 128-byte chunks. 
+eunomia.dev
+eunomia.dev
+ +4
+2. Tensor Core Optimization 
+Tensor Cores are "accelerators within accelerators" that perform 
+ matrix multiply-accumulate (MMA) operations in a single clock cycle. 
+NADDOD
+NADDOD
+Mixed Precision: They achieve high throughput by using lower precision (e.g., FP16, BF16, or INT8) for multiplication while accumulating in higher precision (FP32) to maintain accuracy.
+Alignment Rules: For peak performance, matrix dimensions (batch size, input/output channels) should be multiples of 8 (for FP16) or 16 (for INT8).
+Library Support: Most users access these via optimized libraries like NVIDIA cuBLAS or CUTLASS. 
+NVIDIA Developer
+NVIDIA Developer
+ +4
+3. Thread Synchronization
+Threads are managed via the SIMT (Single Instruction, Multiple Thread) model. 
+YouTube
+YouTube
+Warps: The fundamental unit of execution (32 threads). Synchronization within a warp is often implicit, but "warp divergence" (threads taking different code paths) can severely degrade performance.
+Barriers: Tools like __syncthreads() act as a barrier, ensuring all threads in a block reach the same point before proceeding—critical when using Shared Memory.
+Atomics: Used for safe concurrent updates to the same memory location by multiple threads, though they can introduce serialization bottlenecks. 
+NVIDIA Docs
+NVIDIA Docs
+ +4
+4. Instruction Set Architectures (ISA): PTX
+Parallel Thread Execution (PTX) is a low-level virtual machine and ISA that acts as a stable intermediate representation (IR) for NVIDIA GPUs. 
+NVIDIA Developer
+NVIDIA Developer
+ +1
+Forward Compatibility: High-level code (CUDA C++) compiles to PTX, which the driver then JIT-compiles into device-specific binary (SASS) at runtime. This allows code written today to run on future GPU generations.
+Direct Control: Developers can write PTX directly to use specific hardware features or optimize instruction sequences that the high-level compiler might miss. 
+NVIDIA Developer
+NVIDIA Developer
+ +4
+Would you like to see a code example of how to manually invoke a Tensor Core operation using the CUDA WMMA API?
