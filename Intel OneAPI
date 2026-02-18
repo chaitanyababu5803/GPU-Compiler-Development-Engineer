@@ -1,0 +1,102 @@
+Intel OneAPI 
+***********************
+https://www.intel.com/content/www/us/en/developer/tools/oneapi/training/overview.html
+*************************
+Intel OneAPI TUTORIALS ONLINE
+Intel offers several comprehensive online tutorials and training paths for oneAPI, ranging from foundational concepts to advanced hardware-specific optimizations. 
+1. Official Self-Paced Training
+Intel provides a structured Self-paced Developer Training portal that includes:
+Essentials of SYCL: A foundational course covering how to write C++ code for heterogeneous systems (CPUs, GPUs, and FPGAs).
+Migrate CUDA to SYCL: Specific guidance for developers moving code from NVIDIA's platform to the open oneAPI standard.
+AI & Machine Learning: Specialized modules on using the AI Analytics Toolkit for optimized PyTorch, TensorFlow, and Scikit-learn workflows. 
+Intel
+Intel
+ +4
+2. "Get Started" Guides by Toolkit 
+Depending on your focus area, follow these specific documentation paths:
+Base Toolkit: The Getting Started Guide for Windows and Linux covers environment setup and running your first "Vector-Add" sample.
+HPC Toolkit: Focuses on HPC Development Tools like MPI and Fortran compilers.
+FPGA Development: Dedicated tutorials on optimizing FPGA designs using the oneAPI flow. 
+Intel
+Intel
+ +5
+3. Video & Hands-on Resources
+YouTube Playlists: The Intel Software YouTube Channel features a "oneAPI Basics" series for visual learners.
+Code Samples: Access thousands of functional examples directly on the Intel oneAPI GitHub or through the OneAPI Code Samples Page.
+Interactive Labs: Use the Intel Developer Cloud to run code in the browser without installing local software (note: some older DevCloud services for oneAPI were scheduled for update/discontinuation in late 2024). 
+Intel
+Intel
+ +4
+Proactive Follow-up: Are you looking to migrate existing CUDA code, or are you starting a new project from scratch in C++/SYCL?
+
+
+
+************************************
+BASIC EXMAPLE WITH CODE
+A classic "Hello World" equivalent in oneAPI is the Vector Add example, which demonstrates offloading a simple computation to an accelerator (like a GPU). 
+Intel
+Intel
+ +1
+SYCL Vector Add Code Sample 
+This snippet uses Unified Shared Memory (USM) to simplify memory management between the CPU and GPU. 
+Intel
+Intel
+ +1
+cpp
+#include <sycl/sycl.hpp>
+#include <iostream>
+#include <vector>
+
+using namespace sycl;
+
+int main() {
+    const int N = 10;
+    queue q; // Selects a device (GPU by default if available)
+
+    std::cout << "Running on: " << q.get_device().get_info<info::device::name>() << "\n";
+
+    // Allocate memory on the device
+    int *data = malloc_shared<int>(N, q);
+
+    // Initialize data on host
+    for (int i = 0; i < N; i++) data[i] = i;
+
+    // Offload parallel work to the device
+    q.parallel_for(range<1>(N), [=](id<1> i) {
+        data[i] *= 2; // Simple calculation: multiply each element by 2
+    }).wait(); // Wait for completion
+
+    // Print results
+    for (int i = 0; i < N; i++) std::cout << data[i] << " ";
+    std::cout << "\nDone.\n";
+
+    free(data, q);
+    return 0;
+}
+Use code with caution.
+
+How to Build and Run
+To compile this code, you must use the Intel oneAPI DPC++/C++ Compiler (icpx) and enable the SYCL flag. 
+Intel
+Intel
+ +1
+Initialize Environment:
+Run the setvars script to set up your paths.
+Linux: source /opt/intel/oneapi/setvars.sh
+Windows: C:\Program Files (x86)\Intel\oneAPI\setvars.bat
+Compile:
+Use icpx with the -fsycl flag.
+bash
+icpx -fsycl vector_add.cpp -o vector_add
+Use code with caution.
+
+Run:
+bash
+./vector_add
+Use code with caution.
+
+ 
+Intel
+Intel
+ +2
+Proactive Follow-up: Would you like to see how to adapt this for a specific hardware target, such as an Intel FPGA or an NVIDIA GPU?
