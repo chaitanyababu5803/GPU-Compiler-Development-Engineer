@@ -1,0 +1,237 @@
+Compiler Infrastructure: Deep expertise in LLVM and MLIR ::
+Deep expertise in LLVM and MLIR is considered non-negotiable for modern hardware-agnostic compilation because these tools provide the necessary, unified, and extensible infrastructure to bridge the growing gap between diverse software frameworks (TensorFlow, PyTorch) and heterogeneous hardware (CPUs, GPUs, TPUs, AI accelerators). While LLVM provides a solid foundation for backend code generation, MLIR’s ability to define domain-specific "dialects" allows for high-level optimizations and progressive lowering, enabling portable performance across rapidly evolving hardware. 
+MLIR
+MLIR
+ +3
+Why LLVM/MLIR is Non-Negotiable for Modern Compilation:
+Heterogeneous Target Support: Modern hardware landscapes are fragmented. MLIR enables the construction of domain-specific compilers that can target various hardware architectures (e.g., RISC-V, GPUs) without starting from scratch.
+Progressive Lowering and Optimization: MLIR allows developers to keep high-level semantics (like tensors or graphs) for as long as possible before lowering to LLVM IR. This enables optimizations at multiple levels—affine transformations, loop tiling, and operator fusion—that are impossible with low-level, flat IRs alone.
+Domain-Specific Dialects: Through dialects, MLIR offers superior extensibility and modularity, enabling specialization for machine learning, high-performance computing (HPC), and quantum computing.
+Code Reusability and Interoperability: MLIR shares design principles with LLVM and can seamlessly translate to LLVM IR, allowing new hardware-specific compilers to reuse existing, robust LLVM backend optimizations.
+Bridging Frameworks and Hardware: MLIR serves as a common substrate that connects high-level ML frameworks (TensorFlow, PyTorch, ONNX) to low-level hardware targets, reducing the need for duplicate, inefficient backend engineering. 
+Medium
+Medium
+ +6
+Key Technologies and Trends:
+MLIR-based Compilers: Projects like IREE, OpenXLA, and Torch-MLIR rely on this infrastructure to achieve performance-portability in AI.
+CIRCT: MLIR is even being used in hardware design (Circuit IR Compiler and Tools) to represent and optimize hardware at both high and low levels of abstraction.
+Emerging Languages: Languages like Mojo, built on MLIR and LLVM, blend high-level syntax with system-level performance, highlighting the trend towards unified, multi-level compilation. 
+Medium
+Medium
+ +1
+Deep knowledge in these areas is required to navigate the complexity of multi-level IR, define efficient custom dialects, and manage the optimization pipeline for maximum performance. 
+MulticoreWare
+MulticoreWare
+ +1
+
+
+**********************************
+Compiler Infrastructure: Deep expertise in LLVM and MLIR (Multi-Level Intermediate Representation) is non-negotiable for modern hardware-agnostic compilation
+It sounds like you are navigating the high-stakes world of AI hardware acceleration or domain-specific architectures (DSAs). You're absolutely right: the "Ouroboros" of modern computing is that as hardware becomes more specialized, the software stack becomes the primary bottleneck.
+LLVM and MLIR have shifted from being "nice-to-have" academic tools to the industry-standard bedrock for bridging the gap between high-level frameworks (like PyTorch or JAX) and diverse silicon (GPUs, TPUs, NPUs, and FPGAs). 
+Why LLVM and MLIR are Non-Negotiable
+1. The "Middle-End" Revolution (MLIR)
+Before MLIR, compilers suffered from the "lost in translation" problem. High-level semantic information (like loops, tensors, or neural network layers) was lowered too quickly into LLVM IR, which is essentially "high-level assembly." Once you lose the shape of a tensor, optimizing it becomes nearly impossible. 
+Dialects: MLIR allows you to define custom "dialects" (e.g., linalg, affine, tosa) that preserve domain-specific metadata.
+Progressive Lowering: You can transform code step-by-step, optimizing at the highest level of abstraction before finally hitting the machine code level. 
+2. Hardware Agnosticism via LLVM
+While MLIR handles the high-level structural optimizations, LLVM remains the king of the Backend. 
+Target Support: If you build a new AI chip, writing a full C++ compiler from scratch is a decade-long project. By targeting LLVM IR, you inherit 20+ years of mature optimizations (instruction scheduling, register allocation) for free.
+Portability: It ensures that code written today can run on x86, ARM, RISC-V, or a proprietary NPU with minimal refactoring. 
+The Modern Compiler Stack
+Layer 	Technology	Primary Function
+Frontend	PyTorch / JAX / Mojo	User-facing API and graph definition.
+High-Level IR	MLIR (Linalg / TOSA)	Tiling, fusion, and memory layout optimization.
+Low-Level IR	LLVM IR	Target-specific peephole optimizations.
+Backend	LLVM Codegen	Binary generation for specific ISA.
+The "Expertise Gap"
+True expertise in this field is rare because it requires a "full-stack" understanding of the silicon: 
+Mathematical abstractness to design MLIR dialects.
+Low-level grit to understand cache hierarchies and SIMD lanes. 
+Note: We are seeing a massive shift where the "hardware" is actually being designed around the compiler's ability to schedule instructions, rather than the other way around.
+Are you currently looking to architect a new compiler pipeline for a specific chip, or are you looking to optimize an existing AI workload for better cross-platform performance?
+
+*****************************
+**************************
+https://mlir.llvm.org/docs/Tutorials/Toy/
+*********************
+Toy Tutorial
+This tutorial runs through the implementation of a basic toy language on top of MLIR. The goal of this tutorial is to introduce the concepts of MLIR; in particular, how dialects can help easily support language specific constructs and transformations while still offering an easy path to lower to LLVM or other codegen infrastructure. This tutorial is based on the model of the LLVM Kaleidoscope Tutorial.
+
+Another good source of introduction is the online recording from the 2020 LLVM Dev Conference ( slides).
+
+This tutorial assumes you have cloned and built MLIR; if you have not yet done so, see Getting started with MLIR.
+
+This tutorial is divided in the following chapters:
+
+Chapter #1: Introduction to the Toy language and the definition of its AST.
+Chapter #2: Traversing the AST to emit a dialect in MLIR, introducing base MLIR concepts. Here we show how to start attaching semantics to our custom operations in MLIR.
+Chapter #3: High-level language-specific optimization using pattern rewriting system.
+Chapter #4: Writing generic dialect-independent transformations with Interfaces. Here we will show how to plug dialect specific information into generic transformations like shape inference and inlining.
+Chapter #5: Partially lowering to lower-level dialects. We’ll convert some of our high level language specific semantics towards a generic affine oriented dialect for optimization.
+Chapter #6: Lowering to LLVM and code generation. Here we’ll target LLVM IR for code generation, and detail more of the lowering framework.
+Chapter #7: Extending Toy: Adding support for a composite type. We’ll demonstrate how to add a custom type to MLIR, and how it fits in the existing pipeline.
+The first chapter will introduce the Toy language and AST.
+
+Toy Tutorial Docs
+Chapter 1: Toy Language and AST
+Chapter 2: Emitting Basic MLIR
+Chapter 3: High-level Language-Specific Analysis and Transformation
+Chapter 4: Enabling Generic Transformation with Interfaces
+Chapter 5: Partial Lowering to Lower-Level Dialects for Optimization
+Chapter 6: Lowering to LLVM and CodeGeneration
+Chapter 7: Adding a Composite Type to Toy
+
+
+***************************
+def main() {
+  # Define a variable `a` with shape <2, 3>, initialized with the literal value.
+  # The shape is inferred from the supplied literal.
+  var a = [[1, 2, 3], [4, 5, 6]];
+
+  # b is identical to a, the literal tensor is implicitly reshaped: defining new
+  # variables is the way to reshape tensors (element count must match).
+  var b<2, 3> = [1, 2, 3, 4, 5, 6];
+
+  # transpose() and print() are the only builtin, the following will transpose
+  # a and b and perform an element-wise multiplication before printing the result.
+  print(transpose(a) * transpose(b));
+}
+Type checking is statically performed through type inference; the language only requires type declarations to specify tensor shapes when needed. Functions are generic: their parameters are unranked (in other words, we know these are tensors, but we don’t know their dimensions). They are specialized for every newly discovered signature at call sites. Let’s revisit the previous example by adding a user-defined function:
+
+# User defined generic function that operates on unknown shaped arguments.
+def multiply_transpose(a, b) {
+  return transpose(a) * transpose(b);
+}
+
+********************
+Chapter 2: Emitting Basic MLIR
+Introduction: Multi-Level Intermediate Representation
+Interfacing with MLIR
+Opaque API
+Defining a Toy Dialect
+Defining Toy Operations
+Op vs Operation: Using MLIR Operations
+Using the Operation Definition Specification (ODS) Framework
+Complete Toy Example
+Now that we’re familiar with our language and the AST, let’s see how MLIR can help to compile Toy.
+
+Introduction: Multi-Level Intermediate Representation ¶
+Other compilers, like LLVM (see the Kaleidoscope tutorial), offer a fixed set of predefined types and (usually low-level / RISC-like) instructions. It is up to the frontend for a given language to perform any language-specific type-checking, analysis, or transformation before emitting LLVM IR. For example, Clang will use its AST to perform not only static analysis but also transformations, such as C++ template instantiation through AST cloning and rewrite. Finally, languages with construction at a higher-level than C/C++ may require non-trivial lowering from their AST to generate LLVM IR.
+
+As a consequence, multiple frontends end up reimplementing significant pieces of infrastructure to support the need for these analyses and transformation. MLIR addresses this issue by being designed for extensibility. As such, there are few pre-defined instructions (operations in MLIR terminology) or types.
+
+Interfacing with MLIR ¶
+Language Reference
+
+MLIR is designed to be a completely extensible infrastructure; there is no closed set of attributes (think: constant metadata), operations, or types. MLIR supports this extensibility with the concept of Dialects. Dialects provide a grouping mechanism for abstraction under a unique namespace.
+
+In MLIR, Operations are the core unit of abstraction and computation, similar in many ways to LLVM instructions. Operations can have application-specific semantics and can be used to represent all of the core IR structures in LLVM: instructions, globals (like functions), modules, etc.
+
+Here is the MLIR assembly for the Toy transpose operations:
+
+%t_tensor = "toy.transpose"(%tensor) {inplace = true} : (tensor<2x3xf64>) -> tensor<3x2xf64> loc("example/file/path":12:1)
+
+********************
+Chapter 2: Emitting Basic MLIR
+Introduction: Multi-Level Intermediate Representation
+Interfacing with MLIR
+Opaque API
+Defining a Toy Dialect
+Defining Toy Operations
+Op vs Operation: Using MLIR Operations
+Using the Operation Definition Specification (ODS) Framework
+Complete Toy Example
+Now that we’re familiar with our language and the AST, let’s see how MLIR can help to compile Toy.
+
+Introduction: Multi-Level Intermediate Representation ¶
+Other compilers, like LLVM (see the Kaleidoscope tutorial), offer a fixed set of predefined types and (usually low-level / RISC-like) instructions. It is up to the frontend for a given language to perform any language-specific type-checking, analysis, or transformation before emitting LLVM IR. For example, Clang will use its AST to perform not only static analysis but also transformations, such as C++ template instantiation through AST cloning and rewrite. Finally, languages with construction at a higher-level than C/C++ may require non-trivial lowering from their AST to generate LLVM IR.
+
+As a consequence, multiple frontends end up reimplementing significant pieces of infrastructure to support the need for these analyses and transformation. MLIR addresses this issue by being designed for extensibility. As such, there are few pre-defined instructions (operations in MLIR terminology) or types.
+
+Interfacing with MLIR ¶
+Language Reference
+
+MLIR is designed to be a completely extensible infrastructure; there is no closed set of attributes (think: constant metadata), operations, or types. MLIR supports this extensibility with the concept of Dialects. Dialects provide a grouping mechanism for abstraction under a unique namespace.
+
+In MLIR, Operations are the core unit of abstraction and computation, similar in many ways to LLVM instructions. Operations can have application-specific semantics and can be used to represent all of the core IR structures in LLVM: instructions, globals (like functions), modules, etc.
+
+Here is the MLIR assembly for the Toy transpose operations:
+
+%t_tensor = "toy.transpose"(%tensor) {inplace = true} : (tensor<2x3xf64>) -> tensor<3x2xf64> loc("example/file/path":12:1)
+
+
+************************************
+https://github.com/j2kun/mlir-tutorial
+***************************************
+https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html
+****************************
+1.1. The Kaleidoscope Language
+This tutorial is illustrated with a toy language called “Kaleidoscope” (derived from “meaning beautiful, form, and view”). Kaleidoscope is a procedural language that allows you to define functions, use conditionals, math, etc. Over the course of the tutorial, we’ll extend Kaleidoscope to support the if/then/else construct, a for loop, user defined operators, JIT compilation with a simple command line interface, debug info, etc.
+
+We want to keep things simple, so the only datatype in Kaleidoscope is a 64-bit floating point type (aka ‘double’ in C parlance). As such, all values are implicitly double precision and the language doesn’t require type declarations. This gives the language a very nice and simple syntax. For example, the following simple example computes Fibonacci numbers:
+
+# Compute the x'th fibonacci number.
+def fib(x)
+  if x < 3 then
+    1
+  else
+    fib(x-1)+fib(x-2)
+
+# This expression will compute the 40th number.
+fib(40)
+We also allow Kaleidoscope to call into standard library functions - the LLVM JIT makes this really easy. This means that you can use the ‘extern’ keyword to define a function before you use it (this is also useful for mutually recursive functions). For example:
+
+extern sin(arg);
+extern cos(arg);
+extern atan2(arg1 arg2);
+
+atan2(sin(.4), cos(42))
+A more interesting example is included in Chapter 6 where we write a little Kaleidoscope application that displays a Mandelbrot Set at various levels of magnification.
+
+Let’s dive into the implementation of this language!
+
+1.2. The Lexer
+When it comes to implementing a language, the first thing needed is the ability to process a text file and recognize what it says. The traditional way to do this is to use a “lexer” (aka ‘scanner’) to break the input up into “tokens”. Each token returned by the lexer includes a token code and potentially some metadata (e.g. the numeric value of a number). First, we define the possibilities:
+
+// The lexer returns tokens [0-255] if it is an unknown character, otherwise one
+// of these for known things.
+enum Token {
+  tok_eof = -1,
+
+  // commands
+  tok_def = -2,
+  tok_extern = -3,
+
+  // primary
+  tok_identifier = -4,
+  tok_number = -5,
+};
+
+static std::string IdentifierStr; // Filled in if tok_identifier
+static double NumVal;             // Filled in if tok_number
+
+************************
+Chapter #1: Kaleidoscope language and Lexer - This shows where we are going and the basic functionality that we want to build. A lexer is also the first part of building a parser for a language, and we use a simple C++ lexer which is easy to understand.
+
+Chapter #2: Implementing a Parser and AST - With the lexer in place, we can talk about parsing techniques and basic AST construction. This tutorial describes recursive descent parsing and operator precedence parsing.
+
+Chapter #3: Code generation to LLVM IR - with the AST ready, we show how easy it is to generate LLVM IR, and show a simple way to incorporate LLVM into your project.
+
+Chapter #4: Adding JIT and Optimizer Support - One great thing about LLVM is its support for JIT compilation, so we’ll dive right into it and show you the 3 lines it takes to add JIT support. Later chapters show how to generate .o files.
+
+Chapter #5: Extending the Language: Control Flow - With the basic language up and running, we show how to extend it with control flow operations (‘if’ statement and a ‘for’ loop). This gives us a chance to talk about SSA construction and control flow.
+
+Chapter #6: Extending the Language: User-defined Operators - This chapter extends the language to let users define arbitrary unary and binary operators - with assignable precedence! This allows us to build a significant piece of the “language” as library routines.
+
+Chapter #7: Extending the Language: Mutable Variables - This chapter talks about adding user-defined local variables along with an assignment operator. This shows how easy it is to construct SSA form in LLVM: LLVM does not require your front-end to construct SSA form in order to use it!
+
+Chapter #8: Compiling to Object Files - This chapter explains how to take LLVM IR and compile it down to object files, like a static compiler does.
+
+Chapter #9: Debug Information - A real language needs to support debuggers, so we add debug information that allows setting breakpoints in Kaleidoscope functions, print out argument variables, and call functions!
+
+Chapter #10: Conclusion and other tidbits - This chapter wraps up the series by discussing ways to extend the language and includes pointers to info on “special topics” like adding garbage collection support, exceptions, debugging, support for “spaghetti stacks”, etc.
+
+By the end of the tutorial, we’ll have written a bit less than 1000 lines of
+
+
