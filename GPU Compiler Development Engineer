@@ -19,3 +19,34 @@ Understanding of debugger / profiler tools / bintools / Linker internals, experi
 Usage of AI tools in everyday work like Cursor, Windsurf etc.
 Knowledge of GPU development and compute APIs such as CUDA and OpenCL
 
+********************************
+Vulkan shader programming involves creating shader code in a high-level language, compiling it to the intermediate SPIR-V binary format, and integrating these compiled shaders into the Vulkan graphics or compute pipeline. Unlike older APIs like OpenGL, Vulkan requires pre-compiled shaders, giving developers more control and allowing for performance optimizations. 
+
+Key Concepts
+SPIR-V: The mandatory intermediate representation (IR) for all Vulkan shaders. It is a binary format that drivers consume, which simplifies driver development and improves application load times.
+Shader Languages: The most common languages used are:
+GLSL (OpenGL Shading Language): The most widely used language for Vulkan, with a C-like syntax.
+HLSL (High Level Shading Language): Microsoft's shading language used in DirectX, which is also a first-class language for Vulkan through tools like the DirectX Shader Compiler (DXC).
+Slang: A shading language that can target multiple platforms and IRs, including Vulkan SPIR-V.
+Shader Stages: Shaders are small programs run on specific programmable stages of the GPU pipeline. These stages can include:
+Vertex Shader
+Tessellation Control/Evaluation Shaders
+Geometry Shader
+Fragment Shader
+Compute Shader
+Ray Tracing Shaders (via extensions)
+Shader Modules: In a Vulkan application, the compiled SPIR-V bytecode is wrapped in a VkShaderModule object, which is then used during pipeline creation.
+Data Transfer: Data is passed to shaders using mechanisms like:
+Uniform Buffers (UBOs): Used for data that is constant across a draw call.
+Shader Storage Buffer Objects (SSBOs): Allow shaders to read from and write to large buffers, essential for GPGPU tasks like compute shaders.
+Push Constants: A very fast, limited-size block of memory within a command buffer used to pass small, dynamic data to the shader.
+Input Attachments/Images: Used for reading or writing texture data. 
+
+Programming Workflow
+Write Shader Source: The developer writes shader code in a language like GLSL (e.g., in .vert and .frag files).
+Compile to SPIR-V: The source files are compiled offline into SPIR-V binary files (e.g., .spv files) using tools provided in the Vulkan SDK, such as the glslc or glslangValidator command-line compilers. This can also be integrated into the build process using tools like CMake or Bazel, or even compiled at runtime within the application using libraries like Shaderc.
+Load and Create Modules: The application loads the .spv bytecode from the file system and creates a VkShaderModule for each shader stage.
+Incorporate into Pipeline: These shader modules are specified during the creation of the VkPipeline object, which defines the entire rendering state.
+Bind Data and Dispatch: Before a draw or dispatch call, the application binds descriptor sets and push constants to make resources (buffers, images, etc.) available to the shader. 
+
+***************************************************
