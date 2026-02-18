@@ -1,0 +1,103 @@
+PyTorch Compiler (Torch.compile) TUTORIALS
+*****************************
+https://docs.pytorch.org/tutorials/intermediate/torch_compile_tutorial.html
+https://docs.pytorch.org/tutorials/intermediate/torch_compile_full_example.html
+************************
+*******************************
+
+torch.compile is the centerpiece of PyTorch 2.0+, designed to accelerate your models with a single line of code. It uses a Just-In-Time (JIT) compiler to transform your Python code into optimized kernels for both CPUs and GPUs. 
+
+📘 Official Tutorials
+Introduction to torch.compile: The essential starting point. Covers basic usage (decorators vs. function calls), demonstrates speedups over eager mode, and explains "graph breaks".
+End-to-End Example: Applies compilation to a real-world model (like ResNet or BERT) to demonstrate training and inference speedups.
+Programming Model Guide: A deeper dive into how to rewrite code to avoid graph breaks and use advanced features like fullgraph=True.
+Windows Setup Guide: Specific instructions for getting the compiler running on Windows using MSVC and Triton. 
+
+🛠️ Specialized Recipes
+Compiling the Optimizer: Learn how to speed up the training loop by compiling the optimizer alongside the model.
+Compile-Time Caching: Reduce "cold start" times by caching compiled artifacts between runs.
+Using Custom Triton Kernels: A guide for power users to integrate hand-written Triton kernels into the compilation graph.
+Regional Compilation: Techniques to compile only specific parts of a model to balance performance and compilation time. 
+
+🎥 Video & Community Resources
+PyTorch Compiler Series (YouTube): A technical playlist featuring the engineering team explaining the inner workings of TorchDynamo and Inductor.
+Inside torch.compile Guards: Detailed explanation of how the compiler decides when to recompile based on input shapes and dtypes. 
+
+Quick Start Tip: To compile a module, simply use model = torch.compile(model). For maximum performance on modern GPUs, ensure you have the Triton compiler installed. 
+
+Are you planning to use torch.compile for training or inference, and on what hardware (e.g., NVIDIA GPU, AMD GPU, or CPU)?
+
+
+
+
+
+torch.compile Tutorial — PyTorch Tutorials 2.0.1+cu117 ...
+torch. compile Tutorial. ... torch. compile is the latest method to speed up your PyTorch code! torch. compile makes PyTorch code ...
+
+Netlify
+
+Introduction to torch.compile - PyTorch documentation
+15 Mar 2023 — Basic Usage * We turn on some logging to help us to see what torch. compile is doing under the hood in this tutorial. The followin...
+
+PyTorch documentation
+
+How to use torch.compile on Windows CPU/XPU
+Set Up Environment. Next, let's configure our environment. * Open a command line environment via cmd.exe. * Activate MSVC via belo...
+
+PyTorch documentation
+
+Show all
+BASIC EXMAPLE WIT CODE
+To use torch.compile, you simply wrap your existing model or function in the torch.compile() call. It is designed to be a "one-line" optimization that requires no changes to your existing code logic. 
+PyTorch documentation
+PyTorch documentation
+ +3
+Basic Code Example
+Here is a standard example showing how to compile a simple function and a full neural network module. 
+python
+import torch
+
+# 1. Compiling a simple function
+def foo(x, y):
+    a = torch.sin(x)
+    b = torch.cos(y)
+    return a + b
+
+# Wrap the function with torch.compile
+opt_foo = torch.compile(foo)
+
+# Call the compiled function just like the original
+# Note: The first call will be slower due to compilation latency
+x, y = torch.randn(10, 10), torch.randn(10, 10)
+print(opt_foo(x, y))
+
+# 2. Compiling a Neural Network Module
+class MyModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.lin = torch.nn.Linear(100, 10)
+
+    def forward(self, x):
+        return torch.nn.functional.relu(self.lin(x))
+
+model = MyModel()
+
+# Compile the entire module
+opt_model = torch.compile(model)
+
+# Run inference
+input_tensor = torch.randn(10, 100)
+output = opt_model(input_tensor)
+Use code with caution.
+
+
+Key Execution Facts
+JIT Compilation: The actual compilation happens just-in-time during the first execution. You will typically notice a delay on the first run, followed by significant speedups in subsequent runs.
+Automatic Optimizations: It performs complex fusions (like combining sin and cos operations) and generates optimized kernels for the specific hardware being used.
+Graph Breaks: If the compiler encounters code it doesn't support (like a complex third-party library call), it automatically "breaks" the graph into parts it can compile and parts it runs in standard eager mode.
+Optimization Modes: You can pass a mode argument to tune performance:
+mode="default": Good balance of compilation speed and runtime.
+mode="reduce-overhead": Uses CUDA graphs to further reduce Python overhead (ideal for small models).
+mode="max-autotune": Enables the most aggressive optimizations, though compilation takes much longer. 
+
+Do you have a specific model (like ResNet, BERT, or a custom LLM) that you'd like to optimize with torch.compile? 
