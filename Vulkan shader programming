@@ -297,3 +297,78 @@ VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShade
 That's all there is to describing the programmable stages of the pipeline. In the next chapter we'll look at the fixed-function stages.
 
 ***************************************************
+***********************************
+*****************************************
+BASIC EXAMPLE CODE
+Vulkan uses the Standard Portable Intermediate Representation (SPIR-V) binary format for all shaders. Shaders are typically written in OpenGL Shading Language (GLSL) or High-Level Shading Language (HLSL) and then compiled offline into SPIR-V bytecode using tools like the Vulkan SDK provided glslc or the DirectXShaderCompiler (DXC). 
+YouTube
+YouTube
+ +4
+1. GLSL Vertex Shader (shader.vert) 
+This basic vertex shader defines the positions for a simple triangle and passes the color to the fragment shader. 
+glsl
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// Define vertex positions
+static vec2 positions[3] = vec2[](
+    vec2(0.0, -0.5),
+    vec2(0.5, 0.5),
+    vec2(-0.5, 0.5)
+);
+
+// Define vertex colors
+static vec3 colors[3] = vec3[](
+    vec3(1.0, 0.0, 0.0), // Red
+    vec3(0.0, 1.0, 0.0), // Green
+    vec3(0.0, 0.0, 1.0)  // Blue
+);
+
+// Output structure for the fragment shader
+struct VertexOutput {
+    vec3 color;
+    // gl_Position is a built-in output variable for the vertex position
+    // gl_Position uses the SV_Position semantic in HLSL
+    vec4 sv_position; 
+};
+
+// The 'main' entry point function
+[shader("vertex")] // Slang attribute for clarity, not standard GLSL
+VertexOutput main(uint vid : SV_VertexID) {
+    VertexOutput output;
+    // Set the position: positions[vid].x, positions[vid].y, z=0.0, w=1.0
+    output.sv_position = vec4(positions[vid], 0.0, 1.0);
+    // Set the color
+    output.color = colors[vid];
+    return output;
+}
+ 
+Vulkan Documentation
+Vulkan Documentation
+2. GLSL Fragment Shader (shader.frag)
+This basic fragment shader takes the interpolated color from the vertex shader and outputs it as the final color to the framebuffer. 
+glsl
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// Input structure matching the VertexOutput from the vertex shader
+struct VertexOutput {
+    vec3 color;
+    vec4 sv_position;
+};
+
+// The 'main' entry point function
+[shader("fragment")] // Slang attribute for clarity, not standard GLSL
+vec4 main(VertexOutput inVert) : SV_Target {
+    // The input color is automatically interpolated across the triangle
+    vec3 color = inVert.color;
+    // Output the final color with full opacity (alpha = 1.0)
+    return vec4(color, 1.0);
+}
+ 
+Vulkan Documentation
+Vulkan Documentation
+3. C++ Host Code (Loading and Creating a Shader Module) 
+In your C++ application, you must load the compiled SPIR-V bytecode from file and create a VkShaderModule. The Vulkan Tutorial provides a complete guide for this process. 
+
+
