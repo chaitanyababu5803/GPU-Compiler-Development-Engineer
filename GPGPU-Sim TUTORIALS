@@ -1,0 +1,94 @@
+GPGPU-Sim TUTORIALS
+*******************************
+https://pages.cs.wisc.edu/~chen-han/doc/GPGPU-Sim_Manual.html
+**********************************
+GPGPU-Sim TUTORIALS
+GPGPU-Sim is a cycle-level simulator for modeling GPU microarchitectures and running CUDA or OpenCL workloads without the need for physical hardware. Below are the primary tutorials and resources for getting started. 
+1. Official Getting Started Guide
+The most direct way to start is the GPGPU-Sim Manual, which covers the core workflow: 
+University of Wisconsin–Madison
+University of Wisconsin–Madison
+Installation: Requirements include gcc, make, zlib, bison, and flex. You must set environment variables like GPGPUSIM_ROOT and CUDAHOME in your .bashrc.
+Building: Use make in the root directory to build the simulator.
+Running: To run a CUDA application, you typically link it dynamically by adding the GPGPU-Sim library path to LD_LIBRARY_PATH. 
+University of Wisconsin–Madison
+University of Wisconsin–Madison
+ +4
+2. Video Tutorials (Academic)
+For a structured classroom approach, the ECE 695 GPGPU-Sim Tutorial series is highly recommended: 
+Part 1: Overview: Focuses on the architectural components modeled, including the SIMT core and memory system.
+Part 2: Software (SW): Covers the interface to CUDA API, PTX parsing, and simulator startup details. 
+YouTube
+YouTube
+ +1
+3. Modern Setup: Docker & Accel-Sim
+Recent research often uses Accel-Sim, a fork of GPGPU-Sim that supports modern NVIDIA architectures like Volta and Ampere. 
+Accel-Sim
+Accel-Sim
+ +1
+Docker Approach: You can skip manual dependency management by pulling a pre-configured image: docker pull pli33/gpgpusim:cuda_3.1_3.
+Quickstart Guide: The SST QuickStart provides instructions for integrating GPGPU-Sim with the Structural Simulation Toolkit (SST) for full-system simulation. 
+CliffsNotes
+CliffsNotes
+ +1
+4. Advanced Configuration & Visualization
+AerialVision: A performance visualizer included with GPGPU-Sim. Run python aerialvision.py to plot data from your simulation logs.
+Configuration Files: You must provide a gpgpusim.config file in your application's directory to define GPU parameters like the number of shader cores or DRAM timing. 
+mail.ncku.edu.tw
+mail.ncku.edu.tw
+ +3
+For more community support, you can join the official GPGPU-Sim Google Group to ask specific technical questions. 
+NVIDIA Developer Forums
+NVIDIA Developer Forums
+These resources provide tutorials on installing, building, and running GPGPU-Sim, along with configuration options and advanced setup methods:
+
+
+****************
+NASIC EXMAP;LE WITH CODE
+To run a basic example in GPGPU-Sim, you need three components in your working directory: a CUDA source file (.cu), a configuration file (gpgpusim.config), and an interconnect configuration (config_fermi_islip.icnt). 
+GitHub
+GitHub
+ +1
+1. Simple CUDA Code: Vector Addition 
+Create a file named vector_add.cu. This code adds two vectors of size 4096 on the GPU. 
+NVIDIA Developer
+NVIDIA Developer
+ +2
+cpp
+#include <stdio.h>
+#include <cuda_runtime.h>
+
+// Vector Addition Kernel
+__global__ void vector_add(const float *a, const float *b, float *c, int n) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n) c[idx] = a[idx] + b[idx];
+}
+
+int main() {
+    int n = 4096;
+    size_t size = n * sizeof(float);
+    // ... Host/Device memory allocation, data copy, and kernel launch (1D grid) ...
+    // ... (See for full code example) ...
+    return 0;
+}
+Use code with caution.
+
+2. Required Setup Steps
+Ensure the simulator is linked properly to intercept CUDA calls: 
+Stanford University
+Stanford University
+ +1
+Compile: nvcc vector_add.cu -o vectorAdd -lcudart
+Configurations: Copy config files from $GPGPUSIM_ROOT/configs/tested-cfgs/SM2_GTX480/ to your run directory
+Run: Set LD_LIBRARY_PATH to the GPGPU-Sim library and execute: ./vectorAdd 
+Stanford University
+Stanford University
+ +3
+3. Verifying Execution
+If successful, the terminal will display "GPGPU-Sim: *** Initialization ***" followed by detailed performance statistics, including IPC, DRAM utilization, and cache hit rates. 
+Scribd
+Scribd
+ +1
+Would you like to know how to modify the gpgpusim.config file to simulate a different GPU architecture, like a Tesla V100?
+
+***********************************
